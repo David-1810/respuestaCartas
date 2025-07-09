@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Respuestas de Cartas 💌</title>
+  <title>Respuestas 💌</title>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js"></script>
@@ -39,11 +39,50 @@
       font-weight: bold;
       color: #922b21;
     }
+
+    .menu {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .menu button {
+      margin: 10px;
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #f1948a;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .menu button:hover {
+      background-color: #e74c3c;
+    }
+
+    #contenedor {
+      margin-top: 20px;
+    }
+
+    .subtitulo {
+      text-align: center;
+      color: #922b21;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      font-size: 1.2em;
+    }
   </style>
 </head>
 <body>
 
-  <h1>📂 Respuestas de Cartas</h1>
+  <h1>📂 Ver Respuestas</h1>
+
+  <div class="menu">
+    <button onclick="mostrarRespuestasCartas()">📩 Ver respuestas de Cartas</button>
+    <button onclick="mostrarRespuestasCita()">🌅 Ver respuestas de la Cita</button>
+  </div>
+
   <div id="contenedor"></div>
 
   <script>
@@ -57,33 +96,89 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-
     const contenedor = document.getElementById("contenedor");
 
-    db.collection("respuestas_cartas").orderBy("fecha", "desc").orderBy("hora", "desc").get()
-      .then((querySnapshot) => {
-        if (querySnapshot.empty) {
-          contenedor.innerHTML = "<p>No hay respuestas registradas aún 🕊️</p>";
-          return;
-        }
+    function limpiar() {
+      contenedor.innerHTML = "";
+    }
 
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          const div = document.createElement("div");
-          div.className = "respuesta";
-          div.innerHTML = `
-            <p><span class="label">📅 Fecha:</span> ${data.fecha} – ${data.hora}</p>
-            <p><span class="label">💌 Carta:</span> ${data.carta}</p>
-            <p><span class="label">📝 Mensaje mostrado:</span><br> ${data.mensaje}</p>
-            <p><span class="label">💭 Respuesta:</span><br> ${data.respuesta}</p>
-          `;
-          contenedor.appendChild(div);
+    function mostrarRespuestasCartas() {
+      limpiar();
+      const titulo = document.createElement("h2");
+      titulo.className = "subtitulo";
+      titulo.textContent = "💌 Respuestas de Cartas";
+      contenedor.appendChild(titulo);
+
+      db.collection("respuestas_cartas")
+        .orderBy("fecha", "desc")
+        .orderBy("hora", "desc")
+        .get()
+        .then((querySnapshot) => {
+          if (querySnapshot.empty) {
+            contenedor.innerHTML += "<p>No hay respuestas registradas aún 🕊️</p>";
+            return;
+          }
+
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const div = document.createElement("div");
+            div.className = "respuesta";
+            div.innerHTML = `
+              <p><span class="label">📅 Fecha:</span> ${data.fecha} – ${data.hora}</p>
+              <p><span class="label">💌 Carta:</span> ${data.carta}</p>
+              <p><span class="label">📝 Mensaje mostrado:</span><br> ${data.mensaje}</p>
+              <p><span class="label">💭 Respuesta:</span><br> ${data.respuesta}</p>
+            `;
+            contenedor.appendChild(div);
+          });
+        })
+        .catch((error) => {
+          console.error("Error obteniendo respuestas:", error);
+          contenedor.innerHTML = "<p>Error al obtener respuestas 😢</p>";
         });
-      })
-      .catch((error) => {
-        console.error("Error obteniendo respuestas:", error);
-        contenedor.innerHTML = "<p>Error al obtener respuestas 😢</p>";
-      });
+    }
+
+    function mostrarRespuestasCita() {
+      limpiar();
+      const titulo = document.createElement("h2");
+      titulo.className = "subtitulo";
+      titulo.textContent = "🌇 Respuestas de la Cita Secreta";
+      contenedor.appendChild(titulo);
+
+      db.collection("respuestas")
+        .orderBy("fecha", "desc")
+        .get()
+        .then((querySnapshot) => {
+          if (querySnapshot.empty) {
+            contenedor.innerHTML += "<p>No hay respuestas aún 😔</p>";
+            return;
+          }
+
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const respuestas = data.respuestas || [];
+
+            const div = document.createElement("div");
+            div.className = "respuesta";
+            div.innerHTML = `
+              <p><span class="label">📅 Fecha:</span> ${data.fecha}</p>
+              <hr>
+              ${respuestas.map(r => `
+                <p>
+                  <span class="label">🪷 Etapa:</span> ${r.etapa}<br>
+                  <span class="label">❓ Pregunta:</span> ${r.pregunta}<br>
+                  <span class="label">💬 Respuesta:</span> ${r.respuesta}
+                </p>
+              `).join("<hr>")}
+            `;
+            contenedor.appendChild(div);
+          });
+        })
+        .catch((error) => {
+          console.error("Error al obtener respuestas:", error);
+          contenedor.innerHTML = "<p>Error al obtener respuestas 😓</p>";
+        });
+    }
   </script>
 
 </body>
