@@ -83,7 +83,9 @@
   <div class="menu">
     <button onclick="mostrarRespuestasCartas()">📩 Ver respuestas de Cartas</button>
     <button onclick="mostrarRespuestasCita()">🌅 Ver respuestas de la Cita</button>
+    <button onclick="mostrarRespuestasRegalos()">🎁 Ver respuestas de Regalos</button>
   </div>
+
 
   <div id="contenedor"></div>
 
@@ -178,6 +180,69 @@
           });
         })
     }
+
+    function mostrarRespuestasRegalos() {
+      limpiar();
+      const titulo = document.createElement("h2");
+      titulo.className = "subtitulo";
+      titulo.textContent = "🎁 Respuestas de los Regalos";
+      contenedor.appendChild(titulo);
+
+      const orden = [
+        "El Primer Regalo",
+        "El Segundo Regalo",
+        "El Tercer Regalo",
+        "El Cuarto Regalo",
+        "El Regalo Sorpresa",
+        "Te Gustaron Los Regalos"
+      ];
+
+      const promesas = orden.map(nombre =>
+        db.collection("regalos").doc(nombre).get()
+          .then(doc => ({ nombre, data: doc.exists ? doc.data() : null }))
+      );
+
+      Promise.all(promesas).then(resultados => {
+        let hayRespuestas = false;
+
+        resultados.forEach(({ nombre, data }) => {
+          if (data) {
+            hayRespuestas = true;
+            const div = document.createElement("div");
+            div.className = "respuesta";
+
+            if (nombre === "Te Gustaron Los Regalos") {
+              div.innerHTML = `
+            <p><span class="label">🎁 Respuesta a:</span> ${nombre}</p>
+            <p><span class="label">📝 Nombre:</span> ${data.nombre || "Desconocido"}</p>
+            <p><span class="label">📅 Fecha:</span> ${data.fecha || ""} – ${data.hora || ""}</p>
+            <p><span class="label">💬 Opinión General:</span><br> ${data.mensaje || "Sin mensaje"}</p>
+          `;
+            } else {
+              div.innerHTML = `
+            <p><span class="label">🎁 Nombre Del Regalo:</span> ${nombre}</p>
+            <p><span class="label">📝 Nombre:</span> ${data.nombre || "Desconocido"}</p>
+            <p><span class="label">📅 Fecha:</span> ${data.fecha || ""} – ${data.hora || ""}</p>
+            <p><span class="label">💌 Contenido Mostrado:</span><br> ${data.contenido || "Sin contenido"}</p>
+            <p><span class="label">💗 ¿Le Gustó?:</span> ${data.gusto || "No respondió"}</p>
+            <p><span class="label">💭 Opinión o Mensaje:</span><br> ${data.opinion || "Sin mensaje"}</p>
+          `;
+            }
+
+            contenedor.appendChild(div);
+          }
+        });
+
+        if (!hayRespuestas) {
+          contenedor.innerHTML += "<p>No hay respuestas de regalos todavía 🎁</p>";
+        }
+      }).catch(error => {
+        console.error("Error obteniendo respuestas de regalos:", error);
+        contenedor.innerHTML += "<p>Error al obtener respuestas de regalos 😢</p>";
+      });
+    }
+
+
   </script>
 
 </body>
