@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,7 +29,7 @@
       padding: 15px 20px;
       border-radius: 10px;
       max-width: 800px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     .respuesta p {
@@ -74,6 +75,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <h1>📂 Ver Respuestas</h1>
@@ -161,25 +163,23 @@
             const div = document.createElement("div");
             div.className = "respuesta";
             div.innerHTML = `
-              <p><span class="label">📅 Fecha:</span> ${data.fecha}</p>
-              <hr>
-              ${respuestas.map(r => `
-                <p>
-                  <span class="label">🪷 Etapa:</span> ${r.etapa}<br>
-                  <span class="label">❓ Pregunta:</span> ${r.pregunta}<br>
-                  <span class="label">💬 Respuesta:</span> ${r.respuesta}
-                </p>
-              `).join("<hr>")}
-            `;
+        <p><span class="label">📅 Fecha:</span> ${data.fecha}</p>
+        <hr>
+        ${respuestas.map(r => `
+          <p>
+            <span class="label">🪷 Etapa:</span> ${r.etapa}<br>
+            <span class="label">🕓 Hora:</span> ${r.hora}<br>
+            <span class="label">❓ Pregunta:</span> ${r.pregunta}<br>
+            <span class="label">💬 Respuesta:</span> ${r.respuesta}
+          </p>
+        `).join("<hr>")}
+      `;
             contenedor.appendChild(div);
           });
         })
-        .catch((error) => {
-          console.error("Error al obtener respuestas:", error);
-          contenedor.innerHTML = "<p>Error al obtener respuestas 😓</p>";
-        });
     }
   </script>
 
 </body>
+
 </html>
