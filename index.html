@@ -84,6 +84,7 @@
     <button onclick="mostrarRespuestasCartas()">📩 Ver respuestas de Cartas</button>
     <button onclick="mostrarRespuestasCita()">🌅 Ver respuestas de la Cita</button>
     <button onclick="mostrarRespuestasRegalos()">🎁 Ver respuestas de Regalos</button>
+    <button onclick="mostrarRespuestasVideo()">🎬 Ver respuestas del Video Sorpresa</button>
   </div>
 
 
@@ -242,6 +243,38 @@
       });
     }
 
+    function mostrarRespuestasVideo() {
+      limpiar();
+      const titulo = document.createElement("h2");
+      titulo.className = "subtitulo";
+      titulo.textContent = "🎬 Respuestas del Video Sorpresa";
+      contenedor.appendChild(titulo);
+
+      db.collection("video_regalos")
+        .orderBy("fecha", "desc")
+        .orderBy("hora", "desc")
+        .get()
+        .then((querySnapshot) => {
+          if (querySnapshot.empty) {
+            contenedor.innerHTML += "<p>No hay respuestas registradas aún 🎥</p>";
+            return;
+          }
+
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const div = document.createElement("div");
+            div.className = "respuesta";
+            div.innerHTML = `
+          <p><span class="label">📅 Fecha:</span> ${data.fecha || "Sin fecha"} – ${data.hora || "Sin hora"}</p>
+        `;
+            contenedor.appendChild(div);
+          });
+        })
+        .catch((error) => {
+          console.error("Error al obtener respuestas del video:", error);
+          contenedor.innerHTML = "<p>Error al obtener respuestas del video 😢</p>";
+        });
+    }
 
   </script>
 
